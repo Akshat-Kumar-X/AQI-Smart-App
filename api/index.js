@@ -1,5 +1,6 @@
 const { SmartApp } = require('@smartthings/smartapp');
 const getAQICalculator = require('../library');
+const axios = require('axios');
 
 const smartApp = new SmartApp()
     .enableEventLogging()
@@ -41,6 +42,15 @@ module.exports = async (req, res) => {
         // Manually handle CONFIRMATION lifecycle
         if (lifecycle === 'CONFIRMATION') {
             console.log('Received CONFIRMATION lifecycle:', confirmationData.confirmationUrl);
+            // Send HTTP GET request to confirmationUrl
+            try {
+                await axios.get(confirmationData.confirmationUrl);
+                console.log('Successfully confirmed webhook registration');
+            } catch (err) {
+                console.error('Error confirming webhook registration:', err);
+                res.status(500).send('Failed to confirm webhook registration');
+                return;
+            }
             res.status(200).send(confirmationData.confirmationUrl); // Must send back this URL
             return;
         }
