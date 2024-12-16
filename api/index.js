@@ -3,7 +3,6 @@ const getAQICalculator = require('../library');
 
 const smartApp = new SmartApp()
     .enableEventLogging()
-    .configureI18n()
     .page('mainPage', (context, page, configData) => {
         page.section('Air Quality Inputs', section => {
             section.numberSetting('SO2').min(0).max(1).required(true).name('SO2 (ppm)');
