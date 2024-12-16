@@ -40,10 +40,11 @@ module.exports = async (req, res) => {
 
         // Manually handle CONFIRMATION lifecycle
         if (lifecycle === 'CONFIRMATION') {
-            console.log('Received CONFIRMATION lifecycle');
-            res.status(200).send(confirmationData.confirmationUrl);
+            console.log('Received CONFIRMATION lifecycle:', confirmationData.confirmationUrl);
+            res.status(200).send(confirmationData.confirmationUrl); // Must send back this URL
             return;
         }
+        
 
         // Manually handle UPDATED lifecycle
         if (lifecycle === 'UPDATED') {
