@@ -1,10 +1,12 @@
 const CAI_Calculator = require('./AQI-Calculators/cai');
 const EPA_Calculator = require('./AQI-Calculators/epa');
+const NAQI_Calculator = require('./AQI-Calculators/naqi');
 
 // Add more calculators as you expand to more standards
 const calculators = {
     cai: CAI_Calculator,
-    epa: EPA_Calculator
+    epa: EPA_Calculator,
+    naqi: NAQI_Calculator,
 };
 
 module.exports = (standardType = 'cai') => {

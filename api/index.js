@@ -15,7 +15,8 @@ const smartApp = new SmartApp()
             section.enumSetting('standardType')
                 .options([
                     { id: 'cai', name: 'CAI (Comprehensive Air Quality Index)' },
-                    { id: 'epa', name: 'EPA (US Environmental Protection Agency)' }
+                    { id: 'epa', name: 'EPA (US Environmental Protection Agency)' },
+                    { id: 'naqi', name: 'NAQI (National Air Quality Index)' }
                 ])
                 .required(true)
                 .name('Standard Type');
@@ -72,7 +73,7 @@ module.exports = async (req, res) => {
 
             const standardType = settings.standardType?.[0]?.value;
 
-            if (!standardType || !['cai', 'epa'].includes(standardType.toLowerCase())) {
+            if (!standardType || !['cai', 'epa', 'naqi'].includes(standardType.toLowerCase())) {
                 throw new Error(`Invalid AQI standard type: ${standardType}`);
             }
 
