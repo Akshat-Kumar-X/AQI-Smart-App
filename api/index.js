@@ -13,7 +13,10 @@ const smartApp = new SmartApp()
             section.numberSetting('PM10').min(0).max(600).required(true).name('PM10 (µg/m³)');
             section.numberSetting('PM2.5').min(0).max(500).required(true).name('PM2.5 (µg/m³)');
             section.enumSetting('standardType')
-                .options([{ id: 'cai', name: 'CAI (Comprehensive Air Quality Index)' }])
+                .options([
+                    { id: 'cai', name: 'CAI (Comprehensive Air Quality Index)' },
+                    { id: 'epa', name: 'EPA (US Environmental Protection Agency)' }
+                ])
                 .required(true)
                 .name('Standard Type');
         });
@@ -21,15 +24,15 @@ const smartApp = new SmartApp()
     .updated(async (context, updateData) => {
         const settings = context.config;
         const pollutants = {
-            'SO2': parseFloat(settings.SO2[0]),
-            'CO': parseFloat(settings.CO[0]),
-            'O3': parseFloat(settings.O3[0]),
-            'NO2': parseFloat(settings.NO2[0]),
-            'PM10': parseFloat(settings.PM10[0]),
-            'PM2.5': parseFloat(settings['PM2.5'][0]),
+            'SO2': parseFloat(settings.SO2?.[0]?.value || 0),
+            'CO': parseFloat(settings.CO?.[0]?.value || 0),
+            'O3': parseFloat(settings.O3?.[0]?.value || 0),
+            'NO2': parseFloat(settings.NO2?.[0]?.value || 0),
+            'PM10': parseFloat(settings.PM10?.[0]?.value || 0),
+            'PM2.5': parseFloat(settings['PM2.5']?.[0]?.value || 0),
         };
 
-        const standardType = settings.standardType[0] || 'cai';
+        const standardType = settings.standardType?.[0]?.value || 'cai';
         const calculateAQI = getAQICalculator(standardType);
         const result = calculateAQI(pollutants);
         console.log(`AQI Result: ${JSON.stringify(result)}`);
@@ -39,27 +42,25 @@ module.exports = async (req, res) => {
     try {
         const { lifecycle, confirmationData, config } = req.body;
 
-        // Manually handle CONFIRMATION lifecycle
+        // CONFIRMATION Lifecycle
         if (lifecycle === 'CONFIRMATION') {
             console.log('Received CONFIRMATION lifecycle:', confirmationData.confirmationUrl);
-            // Send HTTP GET request to confirmationUrl
             try {
                 await axios.get(confirmationData.confirmationUrl);
                 console.log('Successfully confirmed webhook registration');
+                res.status(200).send('Webhook confirmed');
             } catch (err) {
-                console.error('Error confirming webhook registration:', err);
+                console.error('Error confirming webhook registration:', err.message);
                 res.status(500).send('Failed to confirm webhook registration');
-                return;
             }
-            res.status(200).send(confirmationData.confirmationUrl); // Must send back this URL
             return;
         }
-        
 
-        // Manually handle UPDATED lifecycle
+        // UPDATED Lifecycle
         if (lifecycle === 'UPDATED') {
             console.log('Received UPDATED lifecycle');
             const settings = config;
+
             const pollutants = {
                 'SO2': parseFloat(settings.SO2?.[0]?.value || 0),
                 'CO': parseFloat(settings.CO?.[0]?.value || 0),
@@ -69,21 +70,24 @@ module.exports = async (req, res) => {
                 'PM2.5': parseFloat(settings['PM2.5']?.[0]?.value || 0),
             };
 
-            const standardType = settings.standardType?.[0]?.value || 'cai';
+            const standardType = settings.standardType?.[0]?.value;
+
+            if (!standardType || !['cai', 'epa'].includes(standardType.toLowerCase())) {
+                throw new Error(`Invalid AQI standard type: ${standardType}`);
+            }
+
             const calculateAQI = getAQICalculator(standardType);
             const result = calculateAQI(pollutants);
-            console.log(`AQI Result: ${JSON.stringify(result)}`);
 
+            console.log(`AQI Result: ${JSON.stringify(result)}`);
             res.status(200).json(result);
             return;
         }
 
-        // Respond with error for unsupported lifecycles
-        res.status(400).send('Unsupported lifecycle');
+        // Unsupported Lifecycle
+        res.status(400).json({ error: `Unsupported lifecycle: ${lifecycle}` });
     } catch (err) {
-        console.error('Error processing request:', err);
-        if (!res.headersSent) {
-            res.status(500).send('Internal Server Error');
-        }
+        console.error('Error processing request:', err.message);
+        res.status(500).json({ error: 'Internal Server Error', details: err.message });
     }
 };

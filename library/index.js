@@ -1,11 +1,19 @@
 const CAI_Calculator = require('./AQI-Calculators/cai');
+const EPA_Calculator = require('./AQI-Calculators/epa');
 
 // Add more calculators as you expand to more standards
 const calculators = {
     cai: CAI_Calculator,
+    epa: EPA_Calculator
 };
 
 module.exports = (standardType = 'cai') => {
-    // Default to CAI if no specific standard is found
-    return calculators[standardType.toLowerCase()] || calculators['cai'];
+    const selectedCalculator = calculators[standardType.toLowerCase()];
+    
+    if (!selectedCalculator) {
+        throw new Error(`Invalid AQI standard type: '${standardType}'. Supported types are: ${Object.keys(calculators).join(', ')}`);
+    }
+
+    return selectedCalculator;
 };
+
