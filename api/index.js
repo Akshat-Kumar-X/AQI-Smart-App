@@ -39,12 +39,56 @@ const smartApp = new SmartApp()
         console.log(`AQI Result: ${JSON.stringify(result)}`);
     });
 
-// Use SmartApp to handle all lifecycle requests
 module.exports = async (req, res) => {
     try {
-        await smartApp.handleHttpCallback(req, res);
+        const { lifecycle, confirmationData, config } = req.body;
+
+        // CONFIRMATION Lifecycle
+        if (lifecycle === 'CONFIRMATION') {
+            console.log('Received CONFIRMATION lifecycle:', confirmationData.confirmationUrl);
+            try {
+                await axios.get(confirmationData.confirmationUrl);
+                console.log('Successfully confirmed webhook registration');
+                res.status(200).send('Webhook confirmed');
+            } catch (err) {
+                console.error('Error confirming webhook registration:', err.message);
+                res.status(500).send('Failed to confirm webhook registration');
+            }
+            return;
+        }
+
+        // UPDATED Lifecycle
+        if (lifecycle === 'UPDATED') {
+            console.log('Received UPDATED lifecycle');
+            const settings = config;
+
+            const pollutants = {
+                'SO2': parseFloat(settings.SO2?.[0]?.value || 0),
+                'CO': parseFloat(settings.CO?.[0]?.value || 0),
+                'O3': parseFloat(settings.O3?.[0]?.value || 0),
+                'NO2': parseFloat(settings.NO2?.[0]?.value || 0),
+                'PM10': parseFloat(settings.PM10?.[0]?.value || 0),
+                'PM2.5': parseFloat(settings['PM2.5']?.[0]?.value || 0),
+            };
+
+            const standardType = settings.standardType?.[0]?.value;
+
+            if (!standardType || !['cai', 'epa', 'naqi'].includes(standardType.toLowerCase())) {
+                throw new Error(`Invalid AQI standard type: ${standardType}`);
+            }
+
+            const calculateAQI = getAQICalculator(standardType);
+            const result = calculateAQI(pollutants);
+
+            console.log(`AQI Result: ${JSON.stringify(result)}`);
+            res.status(200).json(result);
+            return;
+        }
+
+        // Unsupported Lifecycle
+        res.status(400).json({ error: `Unsupported lifecycle: ${lifecycle}` });
     } catch (err) {
-        console.error('Error processing SmartThings lifecycle request:', err.message);
+        console.error('Error processing request:', err.message);
         res.status(500).json({ error: 'Internal Server Error', details: err.message });
     }
 };
