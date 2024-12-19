@@ -1,5 +1,6 @@
 const { SmartApp } = require('@smartthings/smartapp');
 const getAQICalculator = require('../library');
+
 const axios = require('axios');
 
 const smartApp = new SmartApp()
