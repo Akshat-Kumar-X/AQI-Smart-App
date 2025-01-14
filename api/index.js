@@ -1,6 +1,9 @@
+const { SmartApp } = require('@smartthings/smartapp');
+const getAQICalculator = require('../library');
 const i18n = require('i18n');
 const path = require('path');
 
+// Configure i18n
 i18n.configure({
     locales: ['en'], // List of supported locales
     directory: path.join(__dirname, '../locales'), // Path to your locales folder
@@ -9,9 +12,6 @@ i18n.configure({
     updateFiles: false,
     objectNotation: true
 });
-
-const { SmartApp } = require('@smartthings/smartapp');
-const getAQICalculator = require('../library');
 
 // Create a new SmartApp instance
 const smartApp = new SmartApp()
@@ -60,4 +60,7 @@ const smartApp = new SmartApp()
         console.log(`AQI Result: ${JSON.stringify(result)}`);
     });
 
-module.exports = smartApp;
+// Export a function for Vercel
+module.exports = async (req, res) => {
+    smartApp.handleHttpCallback(req, res);
+};
