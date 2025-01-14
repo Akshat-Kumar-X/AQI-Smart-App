@@ -1,5 +1,9 @@
 const { SmartApp } = require('@smartthings/smartapp');
 const getAQICalculator = require('../library');
+
+
+const axios = require('axios');
+
 const i18n = require('i18n');
 const path = require('path');
 
@@ -12,6 +16,7 @@ i18n.configure({
     updateFiles: false,
     objectNotation: true
 });
+
 
 const smartApp = new SmartApp()
     .enableEventLogging()
