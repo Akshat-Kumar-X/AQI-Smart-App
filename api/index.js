@@ -34,9 +34,10 @@ const smartApp = new SmartApp()
                 .name('Standard Type');
         });
     })
-    .updated(async (context, updateData) => {
+    .page('resultPage', (context, page) => {
         const settings = context.config;
 
+        // Extract pollutant inputs and standard type
         const pollutants = {
             'SO2': parseFloat(settings.SO2?.[0]?.value || 0),
             'CO': parseFloat(settings.CO?.[0]?.value || 0),
@@ -47,10 +48,20 @@ const smartApp = new SmartApp()
         };
 
         const standardType = settings.standardType?.[0]?.value || 'cai';
+
+        // Get the appropriate AQI calculator
         const calculateAQI = getAQICalculator(standardType);
         const result = calculateAQI(pollutants);
 
-        console.log(`AQI Result: ${JSON.stringify(result)}`);
+        // Add a section to display the AQI result
+        page.section('AQI Result', section => {
+            section.textSetting('aqiValue')
+                .name(`AQI: ${result.AQI}`)
+                .description(`Category: ${result.category}\nColor: ${result.color}\nResponsible Pollutant: ${result.responsiblePollutant}`);
+        });
+    })
+    .updated(async (context, updateData) => {
+        console.log('App settings updated.');
     });
 
 module.exports = async (req, res) => {
