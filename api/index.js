@@ -1,10 +1,26 @@
 const { SmartApp } = require('@smartthings/smartapp');
 const getAQICalculator = require('../library');
 
+
 const axios = require('axios');
+
+const i18n = require('i18n');
+const path = require('path');
+
+// Configure i18n
+i18n.configure({
+    locales: ['en'],
+    directory: path.join(__dirname, '../locales'),
+    defaultLocale: 'en',
+    autoReload: true,
+    updateFiles: false,
+    objectNotation: true
+});
+
 
 const smartApp = new SmartApp()
     .enableEventLogging()
+    .configureI18n()
     .page('mainPage', (context, page, configData) => {
         page.section('Air Quality Inputs', section => {
             section.numberSetting('SO2').min(0).max(1).required(true).name('SO2 (ppm)');
@@ -25,6 +41,7 @@ const smartApp = new SmartApp()
     })
     .updated(async (context, updateData) => {
         const settings = context.config;
+
         const pollutants = {
             'SO2': parseFloat(settings.SO2?.[0]?.value || 0),
             'CO': parseFloat(settings.CO?.[0]?.value || 0),
@@ -37,59 +54,26 @@ const smartApp = new SmartApp()
         const standardType = settings.standardType?.[0]?.value || 'cai';
         const calculateAQI = getAQICalculator(standardType);
         const result = calculateAQI(pollutants);
+
         console.log(`AQI Result: ${JSON.stringify(result)}`);
     });
 
 module.exports = async (req, res) => {
     try {
-        const { lifecycle, confirmationData, config } = req.body;
+        const { lifecycle, confirmationData } = req.body;
 
-        // CONFIRMATION Lifecycle
+        // Handle CONFIRMATION Lifecycle
         if (lifecycle === 'CONFIRMATION') {
-            console.log('Received CONFIRMATION lifecycle:', confirmationData.confirmationUrl);
-            try {
-                await axios.get(confirmationData.confirmationUrl);
-                console.log('Successfully confirmed webhook registration');
-                res.status(200).send('Webhook confirmed');
-            } catch (err) {
-                console.error('Error confirming webhook registration:', err.message);
-                res.status(500).send('Failed to confirm webhook registration');
-            }
+            console.log('CONFIRMATION request received:', confirmationData.confirmationUrl);
+            await fetch(confirmationData.confirmationUrl);
+            res.status(200).send('Confirmation successful');
             return;
         }
 
-        // UPDATED Lifecycle
-        if (lifecycle === 'UPDATED') {
-            console.log('Received UPDATED lifecycle');
-            const settings = config;
-
-            const pollutants = {
-                'SO2': parseFloat(settings.SO2?.[0]?.value || 0),
-                'CO': parseFloat(settings.CO?.[0]?.value || 0),
-                'O3': parseFloat(settings.O3?.[0]?.value || 0),
-                'NO2': parseFloat(settings.NO2?.[0]?.value || 0),
-                'PM10': parseFloat(settings.PM10?.[0]?.value || 0),
-                'PM2.5': parseFloat(settings['PM2.5']?.[0]?.value || 0),
-            };
-
-            const standardType = settings.standardType?.[0]?.value;
-
-            if (!standardType || !['cai', 'epa', 'naqi'].includes(standardType.toLowerCase())) {
-                throw new Error(`Invalid AQI standard type: ${standardType}`);
-            }
-
-            const calculateAQI = getAQICalculator(standardType);
-            const result = calculateAQI(pollutants);
-
-            console.log(`AQI Result: ${JSON.stringify(result)}`);
-            res.status(200).json(result);
-            return;
-        }
-
-        // Unsupported Lifecycle
-        res.status(400).json({ error: `Unsupported lifecycle: ${lifecycle}` });
+        // Delegate all other lifecycles to SmartApp
+        smartApp.handleHttpCallback(req, res);
     } catch (err) {
-        console.error('Error processing request:', err.message);
-        res.status(500).json({ error: 'Internal Server Error', details: err.message });
+        console.error('Error handling request:', err);
+        res.status(500).send('Internal Server Error');
     }
 };
