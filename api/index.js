@@ -61,7 +61,34 @@ const smartApp = new SmartApp()
         });
     })
     .updated(async (context, updateData) => {
-        console.log('App settings updated.');
+        const settings = context.config;
+
+        // Extract pollutant inputs and standard type
+        const pollutants = {
+            'SO2': parseFloat(settings.SO2?.[0]?.value || 0),
+            'CO': parseFloat(settings.CO?.[0]?.value || 0),
+            'O3': parseFloat(settings.O3?.[0]?.value || 0),
+            'NO2': parseFloat(settings.NO2?.[0]?.value || 0),
+            'PM10': parseFloat(settings.PM10?.[0]?.value || 0),
+            'PM2.5': parseFloat(settings['PM2.5']?.[0]?.value || 0),
+        };
+
+        const standardType = settings.standardType?.[0]?.value || 'cai';
+
+        // Get the appropriate AQI calculator
+        const calculateAQI = getAQICalculator(standardType);
+        const result = calculateAQI(pollutants);
+
+        // Log the AQI result for debugging
+        console.log(`AQI Result: ${JSON.stringify(result)}`);
+
+        // Send a notification to the user
+        await context.api.notifications.send({
+            message: `AQI: ${result.AQI}\nCategory: ${result.category}\nResponsible Pollutant: ${result.responsiblePollutant}`,
+            type: 'ALERT'
+        });
+
+        console.log('Notification sent to user.');
     });
 
 module.exports = async (req, res) => {
