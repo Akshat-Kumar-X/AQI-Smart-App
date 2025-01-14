@@ -1,10 +1,12 @@
 const { SmartApp } = require('@smartthings/smartapp');
 const getAQICalculator = require('../library');
-const axios = require('axios');
 
+// Create a new SmartApp instance
 const smartApp = new SmartApp()
-    .enableEventLogging()
+    .enableEventLogging() // Enable event logging for debugging
+    .configureI18n() // Enable i18n for localization
     .page('mainPage', (context, page, configData) => {
+        // Main configuration page
         page.section('Air Quality Inputs', section => {
             section.numberSetting('SO2').min(0).max(1).required(true).name('SO2 (ppm)');
             section.numberSetting('CO').min(0).max(50).required(true).name('CO (ppm)');
@@ -23,7 +25,10 @@ const smartApp = new SmartApp()
         });
     })
     .updated(async (context, updateData) => {
+        // Handle updates (when the user saves settings)
         const settings = context.config;
+
+        // Extract pollutant inputs and standard type
         const pollutants = {
             'SO2': parseFloat(settings.SO2?.[0]?.value || 0),
             'CO': parseFloat(settings.CO?.[0]?.value || 0),
@@ -34,61 +39,13 @@ const smartApp = new SmartApp()
         };
 
         const standardType = settings.standardType?.[0]?.value || 'cai';
+
+        // Get the appropriate AQI calculator
         const calculateAQI = getAQICalculator(standardType);
         const result = calculateAQI(pollutants);
+
+        // Log the AQI result for debugging
         console.log(`AQI Result: ${JSON.stringify(result)}`);
     });
 
-module.exports = async (req, res) => {
-    try {
-        const { lifecycle, confirmationData, config } = req.body;
-
-        // CONFIRMATION Lifecycle
-        if (lifecycle === 'CONFIRMATION') {
-            console.log('Received CONFIRMATION lifecycle:', confirmationData.confirmationUrl);
-            try {
-                await axios.get(confirmationData.confirmationUrl);
-                console.log('Successfully confirmed webhook registration');
-                res.status(200).send('Webhook confirmed');
-            } catch (err) {
-                console.error('Error confirming webhook registration:', err.message);
-                res.status(500).send('Failed to confirm webhook registration');
-            }
-            return;
-        }
-
-        // UPDATED Lifecycle
-        if (lifecycle === 'UPDATED') {
-            console.log('Received UPDATED lifecycle');
-            const settings = config;
-
-            const pollutants = {
-                'SO2': parseFloat(settings.SO2?.[0]?.value || 0),
-                'CO': parseFloat(settings.CO?.[0]?.value || 0),
-                'O3': parseFloat(settings.O3?.[0]?.value || 0),
-                'NO2': parseFloat(settings.NO2?.[0]?.value || 0),
-                'PM10': parseFloat(settings.PM10?.[0]?.value || 0),
-                'PM2.5': parseFloat(settings['PM2.5']?.[0]?.value || 0),
-            };
-
-            const standardType = settings.standardType?.[0]?.value;
-
-            if (!standardType || !['cai', 'epa', 'naqi'].includes(standardType.toLowerCase())) {
-                throw new Error(`Invalid AQI standard type: ${standardType}`);
-            }
-
-            const calculateAQI = getAQICalculator(standardType);
-            const result = calculateAQI(pollutants);
-
-            console.log(`AQI Result: ${JSON.stringify(result)}`);
-            res.status(200).json(result);
-            return;
-        }
-
-        // Unsupported Lifecycle
-        res.status(400).json({ error: `Unsupported lifecycle: ${lifecycle}` });
-    } catch (err) {
-        console.error('Error processing request:', err.message);
-        res.status(500).json({ error: 'Internal Server Error', details: err.message });
-    }
-};
+module.exports = smartApp;
