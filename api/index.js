@@ -1,3 +1,15 @@
+const i18n = require('i18n');
+const path = require('path');
+
+i18n.configure({
+    locales: ['en'], // List of supported locales
+    directory: path.join(__dirname, '../locales'), // Path to your locales folder
+    defaultLocale: 'en',
+    autoReload: true,
+    updateFiles: false,
+    objectNotation: true
+});
+
 const { SmartApp } = require('@smartthings/smartapp');
 const getAQICalculator = require('../library');
 

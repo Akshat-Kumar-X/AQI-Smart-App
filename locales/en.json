@@ -1,1 +1,9 @@
-{}
+{
+    "files": [
+      "api",
+      "library",
+      "locales",
+      "vercel.json"
+    ]
+  }
+  
