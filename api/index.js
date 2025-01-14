@@ -5,20 +5,18 @@ const path = require('path');
 
 // Configure i18n
 i18n.configure({
-    locales: ['en'], // List of supported locales
-    directory: path.join(__dirname, '../locales'), // Path to your locales folder
+    locales: ['en'],
+    directory: path.join(__dirname, '../locales'),
     defaultLocale: 'en',
     autoReload: true,
     updateFiles: false,
     objectNotation: true
 });
 
-// Create a new SmartApp instance
 const smartApp = new SmartApp()
-    .enableEventLogging() // Enable event logging for debugging
-    .configureI18n() // Enable i18n for localization
+    .enableEventLogging()
+    .configureI18n()
     .page('mainPage', (context, page, configData) => {
-        // Main configuration page
         page.section('Air Quality Inputs', section => {
             section.numberSetting('SO2').min(0).max(1).required(true).name('SO2 (ppm)');
             section.numberSetting('CO').min(0).max(50).required(true).name('CO (ppm)');
@@ -37,10 +35,8 @@ const smartApp = new SmartApp()
         });
     })
     .updated(async (context, updateData) => {
-        // Handle updates (when the user saves settings)
         const settings = context.config;
 
-        // Extract pollutant inputs and standard type
         const pollutants = {
             'SO2': parseFloat(settings.SO2?.[0]?.value || 0),
             'CO': parseFloat(settings.CO?.[0]?.value || 0),
@@ -51,16 +47,28 @@ const smartApp = new SmartApp()
         };
 
         const standardType = settings.standardType?.[0]?.value || 'cai';
-
-        // Get the appropriate AQI calculator
         const calculateAQI = getAQICalculator(standardType);
         const result = calculateAQI(pollutants);
 
-        // Log the AQI result for debugging
         console.log(`AQI Result: ${JSON.stringify(result)}`);
     });
 
-// Export a function for Vercel
 module.exports = async (req, res) => {
-    smartApp.handleHttpCallback(req, res);
+    try {
+        const { lifecycle, confirmationData } = req.body;
+
+        // Handle CONFIRMATION Lifecycle
+        if (lifecycle === 'CONFIRMATION') {
+            console.log('CONFIRMATION request received:', confirmationData.confirmationUrl);
+            await fetch(confirmationData.confirmationUrl);
+            res.status(200).send('Confirmation successful');
+            return;
+        }
+
+        // Delegate all other lifecycles to SmartApp
+        smartApp.handleHttpCallback(req, res);
+    } catch (err) {
+        console.error('Error handling request:', err);
+        res.status(500).send('Internal Server Error');
+    }
 };
