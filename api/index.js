@@ -33,7 +33,9 @@ const smartApp = new SmartApp()
                 .options([
                     { id: 'cai', name: 'CAI (Comprehensive Air Quality Index)' },
                     { id: 'epa', name: 'EPA (US Environmental Protection Agency)' },
-                    { id: 'naqi', name: 'NAQI (National Air Quality Index)' }
+                    { id: 'naqi', name: 'NAQI (National Air Quality Index)' },
+                    { id: 'fea', name: 'FEA (Germany Federal Environmental Agency)'},
+                    { id: 'aqhi', name: 'AQHI (Canada Air Quality Health Index)' }
                 ])
                 .required(true)
                 .name('Standard Type');

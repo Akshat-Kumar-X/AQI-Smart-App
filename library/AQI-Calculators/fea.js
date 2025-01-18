@@ -1,18 +1,21 @@
-// AQI calculator for the UK
+// AQI calculator for Germany
+
+//sources:- https://www.umweltbundesamt.de/en/calculation-base-air-quality-index
+
 module.exports = (pollutantValues) => {
     const categories = [
-        { name: 'Low', min: 1, max: 3, color: 'Green' },
-        { name: 'Moderate', min: 4, max: 6, color: 'Yellow' },
-        { name: 'High', min: 7, max: 9, color: 'Red' },
-        { name: 'Very High', min: 10, max: 10, color: 'Purple' }
+        { name: 'Very Good', min: 0, max: 20, color: 'Blue' },
+        { name: 'Good', min: 21, max: 40, color: 'Green' },
+        { name: 'Moderate', min: 41, max: 100, color: 'Yellow' },
+        { name: 'Poor', min: 101, max: 200, color: 'Orange' },
+        { name: 'Very Poor', min: 201, max: Infinity, color: 'Red' }
     ];
 
     const pollutants = [
-        { name: 'SO2', BP_LO: [0, 267, 533, 1065], BP_HI: [266, 532, 1064, 1200], I_LO: [1, 4, 7, 10], I_HI: [3, 6, 9, 10] },
-        { name: 'O3', BP_LO: [0, 101, 161, 241], BP_HI: [100, 160, 240, 350], I_LO: [1, 4, 7, 10], I_HI: [3, 6, 9, 10] },
-        { name: 'NO2', BP_LO: [0, 201, 401, 601], BP_HI: [200, 400, 600, 800], I_LO: [1, 4, 7, 10], I_HI: [3, 6, 9, 10] },
-        { name: 'PM10', BP_LO: [0, 51, 76, 101], BP_HI: [50, 75, 100, 150], I_LO: [1, 4, 7, 10], I_HI: [3, 6, 9, 10] },
-        { name: 'PM2.5', BP_LO: [0, 36, 54, 71], BP_HI: [35, 53, 70, 100], I_LO: [1, 4, 7, 10], I_HI: [3, 6, 9, 10] }
+        { name: 'NO2', BP_LO: [0, 21, 41, 101, 201], BP_HI: [20, 40, 100, 200, Infinity], I_LO: [0, 21, 41, 101, 201], I_HI: [20, 40, 100, 200, Infinity] },
+        { name: 'PM10', BP_LO: [0, 21, 36, 51, 101], BP_HI: [20, 35, 50, 100, Infinity], I_LO: [0, 21, 41, 101, 201], I_HI: [20, 35, 50, 100, Infinity] },
+        { name: 'PM2.5', BP_LO: [0, 11, 21, 26, 51], BP_HI: [10, 20, 25, 50, Infinity], I_LO: [0, 21, 41, 101, 201], I_HI: [10, 20, 25, 50, Infinity] },
+        { name: 'O3', BP_LO: [0, 61, 121, 181, 241], BP_HI: [60, 120, 180, 240, Infinity], I_LO: [0, 21, 41, 101, 201], I_HI: [60, 120, 180, 240, Infinity] }
     ];
 
     let highestAQI = 0;
