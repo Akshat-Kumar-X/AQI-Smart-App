@@ -18,8 +18,8 @@ const smartApp = new SmartApp()
     .configureI18n()
     .page('mainPage', (context, page, configData) => {
         page.name('Air Quality Input');
-        page.nextPageId('resultPage');
-        page.complete(false);
+        page.nextPageId('resultPage');  // ✅ Ensures navigation to Result Page
+        page.complete(false);  // ✅ Prevents SmartThings from exiting immediately
 
         page.section('Air Quality Inputs', section => {
             section.numberSetting('SO2').min(0).max(1).required(true).name('SO2 (ppm)');
@@ -44,7 +44,7 @@ const smartApp = new SmartApp()
         const installedAppId = context.installedAppId;
         const settings = await context.api.installedApps.getConfig(installedAppId);
 
-        // Extract pollutant values correctly
+        // Extract pollutant inputs and standard type
         const pollutants = {
             'SO2': parseFloat(settings.SO2?.[0]?.stringConfig.value || 0),
             'CO': parseFloat(settings.CO?.[0]?.stringConfig.value || 0),
@@ -54,14 +54,14 @@ const smartApp = new SmartApp()
             'PM2.5': parseFloat(settings['PM2.5']?.[0]?.stringConfig.value || 0),
         };
 
-        const standardType = settings.standardType?.[0]?.stringConfig.value || 'cai';
+        const standardType = settings.standardType?.[0]?.value || 'cai';
 
-        // Get the correct AQI calculator
+        // Get the appropriate AQI calculator
         const calculateAQI = getAQICalculator(standardType);
         const result = calculateAQI(pollutants);
 
         page.name('AQI Result');
-        page.complete(true);
+        page.complete(true);  // ✅ Marks this as the final page
 
         page.section('Calculated AQI', section => {
             section.paragraphSetting('aqiValue')
@@ -74,6 +74,7 @@ module.exports = async (req, res) => {
     try {
         const { lifecycle, confirmationData } = req.body;
 
+        // Handle CONFIRMATION Lifecycle
         if (lifecycle === 'CONFIRMATION') {
             console.log('CONFIRMATION request received:', confirmationData.confirmationUrl);
             await fetch(confirmationData.confirmationUrl);
@@ -81,6 +82,7 @@ module.exports = async (req, res) => {
             return;
         }
 
+        // Delegate all other lifecycles to SmartApp
         smartApp.handleHttpCallback(req, res);
     } catch (err) {
         console.error('Error handling request:', err);
