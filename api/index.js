@@ -69,34 +69,56 @@ const smartApp = new SmartApp()
     })
 
     // ✅ Result Page
-    .page('resultPage', (context, page) => {
-        const settings = context.config;
+    // ✅ Result Page with Color-coded Category Display
+.page('resultPage', (context, page) => {
+    const settings = context.config;
 
-        // Extract pollutant values
-        const pollutants = {
-            'SO2': parseFloat(settings.SO2?.[0]?.stringConfig?.value || 0),
-            'CO': parseFloat(settings.CO?.[0]?.stringConfig?.value || 0),
-            'O3': parseFloat(settings.O3?.[0]?.stringConfig?.value || 0),
-            'NO2': parseFloat(settings.NO2?.[0]?.stringConfig?.value || 0),
-            'PM10': parseFloat(settings.PM10?.[0]?.stringConfig?.value || 0),
-            'PM2.5': parseFloat(settings['PM2.5']?.[0]?.stringConfig?.value || 0),
+    // Extract pollutant values
+    const pollutants = {
+        'SO2': parseFloat(settings.SO2?.[0]?.stringConfig?.value || 0),
+        'CO': parseFloat(settings.CO?.[0]?.stringConfig?.value || 0),
+        'O3': parseFloat(settings.O3?.[0]?.stringConfig?.value || 0),
+        'NO2': parseFloat(settings.NO2?.[0]?.stringConfig?.value || 0),
+        'PM10': parseFloat(settings.PM10?.[0]?.stringConfig?.value || 0),
+        'PM2.5': parseFloat(settings['PM2.5']?.[0]?.stringConfig?.value || 0),
+    };
+
+    const standardType = settings.standardType?.[0]?.stringConfig?.value || 'cai';
+
+    // Get the appropriate AQI calculator
+    const calculateAQI = getAQICalculator(standardType);
+    const result = calculateAQI(pollutants);
+
+    page.name('AQI Result');
+    page.complete(true);
+
+    // ✅ Section for AQI Calculation Result
+    page.section('Calculated AQI', section => {
+        section.paragraphSetting('aqiValue')
+            .name('📈 AQI Calculation Result')
+            .description(`AQI: ${result.AQI}\nCategory: ${result.category}\nColor: ${result.color}\nResponsible Pollutant: ${result.responsiblePollutant}`);
+    });
+
+    // ✅ Section for Color-coded Category
+    page.section('AQI Category', section => {
+        const colorMapping = {
+            "Green": "#00FF00",
+            "Light Green": "#90EE90",
+            "Yellow": "#FFFF00",
+            "Orange": "#FFA500",
+            "Red": "#FF0000",
+            "Maroon": "#800000"
         };
 
-        const standardType = settings.standardType?.[0]?.stringConfig?.value || 'cai';
+        const categoryColor = colorMapping[result.color] || "#808080"; // Default to gray if unknown
 
-        // Get the appropriate AQI calculator
-        const calculateAQI = getAQICalculator(standardType);
-        const result = calculateAQI(pollutants);
+        section.paragraphSetting('aqiCategoryColorBox')
+            .name(`📊 AQI Category: ${result.category}`)
+            .description(`⬛ Category: ${result.category}`)
+            .style({ backgroundColor: categoryColor, padding: "10px", textAlign: "center", color: "#FFFFFF", borderRadius: "5px" });
+    });
+})
 
-        page.name('AQI Result');
-        page.complete(true);
-
-        page.section('Calculated AQI', section => {
-            section.paragraphSetting('aqiValue')
-                .name('📈 AQI Calculation Result')
-                .description(`AQI: ${result.AQI}\nCategory: ${result.category}\nColor: ${result.color}\nResponsible Pollutant: ${result.responsiblePollutant}`);
-        });
-    })
     
     // ✅ Lifecycle: Handle Updates
     .updated(async (context, updateData) => {
