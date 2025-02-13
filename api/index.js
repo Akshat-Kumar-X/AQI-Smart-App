@@ -22,7 +22,7 @@ const smartApp = new SmartApp()
         page.complete(false);
 
         // ✅ Section 1: Gaseous Pollutants
-        page.section(i18n.__('pages.mainPage.sections.GaseousPollutants.name'), section => {
+        page.section(i18n.__('a'), section => {
             section.paragraphSetting('gaseousHeading')
                 .name('🚀 Enter Gas Concentrations')
                 .description('Provide the concentration levels of gaseous pollutants (ppm).');
