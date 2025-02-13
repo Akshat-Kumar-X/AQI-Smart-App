@@ -1,9 +1,42 @@
 {
-    "files": [
-      "api",
-      "library",
-      "locales",
-      "vercel.json"
-    ]
+  "pages": {
+      "mainPage": {
+          "name": "🌍 Select Air Quality Standard",
+          "sections": {
+              "Air Quality Inputs": {
+                  "name": "🛠️ Air Quality Inputs"
+              },
+              "Gaseous Pollutants": {
+                  "name": "🔬 Gaseous Pollutants"
+              },
+              "Particulate Matter": {
+                  "name": "🌫️ Particulate Matter (PM)"
+              },
+              "AQI Standard Selection": {
+                  "name": "📊 AQI Standard Selection"
+              }
+          },
+          "settings": {
+              "standardType": {
+                  "name": "📊 Select AQI Calculation Standard",
+                  "description": "Choose a standard for AQI calculation based on your location.",
+                  "options": {
+                      "cai": "🇰🇷 CAI (South Korea)",
+                      "epa": "🇺🇸 EPA (USA)",
+                      "naqi": "🇮🇳 NAQI (India)",
+                      "fea": "🇩🇪 FEA (Germany)",
+                      "aqhi": "🇨🇦 AQHI (Canada)"
+                  }
+              }
+          }
+      },
+      "resultPage": {
+          "name": "📈 AQI Calculation Result",
+          "sections": {
+              "Calculated AQI": {
+                  "name": "📊 Your AQI Score"
+              }
+          }
+      }
   }
-  
+}
