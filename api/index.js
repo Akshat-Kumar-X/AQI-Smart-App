@@ -7,7 +7,6 @@ const path = require('path');
 
 const smartApp = new SmartApp()
     .enableEventLogging()
-    .configureI18n()
     .page('mainPage', (context, page, configData) => {
         page.name('Air Quality Input');
         page.nextPageId('resultPage');
