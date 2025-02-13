@@ -17,6 +17,10 @@ const smartApp = new SmartApp()
     .enableEventLogging()
     .configureI18n()
     .page('mainPage', (context, page, configData) => {
+        page.name('Air Quality Input');
+        page.complete(true);
+        page.nextPageId('resultPage'); // ✅ Ensures navigation to the result page
+
         page.section('Air Quality Inputs', section => {
             section.numberSetting('SO2').min(0).max(1).required(true).name('SO2 (ppm)');
             section.numberSetting('CO').min(0).max(50).required(true).name('CO (ppm)');
@@ -56,8 +60,11 @@ const smartApp = new SmartApp()
         const result = calculateAQI(pollutants);
 
         // Add a section to display the AQI result
-        page.section('AQI Result', section => {
-            section.textSetting('aqiValue')
+        page.name('AQI Result');
+        page.complete(true); // ✅ Ensures that the result page is shown
+
+        page.section('Calculated AQI', section => {
+            section.paragraphSetting('aqiValue')
                 .name(`AQI: ${result.AQI}`)
                 .description(`Category: ${result.category}\nColor: ${result.color}\nResponsible Pollutant: ${result.responsiblePollutant}`);
         });
