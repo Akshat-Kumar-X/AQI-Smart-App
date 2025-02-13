@@ -9,9 +9,6 @@
         "Particulate Matter (PM)": {
           "name": "Particulate Matter (PM)"
         },
-        "separator": {
-          "name": "----------------------------------------"
-        },
         "AQI Standard Selection": {
           "name": "AQI Standard Selection"
         }
