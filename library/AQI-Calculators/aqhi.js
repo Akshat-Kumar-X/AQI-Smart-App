@@ -15,17 +15,17 @@ module.exports = (pollutantValues) => {
     // Risk coefficients for AQHI formula
     const riskCoefficients = {
         O3: 0.000537, // Ozone (ppb)
-        PM2_5: 0.000487, // PM2.5 (µg/m³)
+        "PM2.5": 0.000487, // PM2.5 (µg/m³)
         NO2: 0.000871  // Nitrogen Dioxide (ppb)
     };
 
-    // Ensure pollutant names match the SmartThings API format
-    const O3 = parseFloat(pollutantValues.O3) || 0;
-    const PM2_5 = parseFloat(pollutantValues["PM2.5"]) || 0; // ✅ Fixed PM2.5 name
-    const NO2 = parseFloat(pollutantValues.NO2) || 0;
+    // ✅ Ensure we correctly extract pollutant values
+    const O3 = parseFloat(pollutantValues?.O3?.[0]?.stringConfig?.value) || 0;
+    const PM2_5 = parseFloat(pollutantValues?.["PM2.5"]?.[0]?.stringConfig?.value) || 0; // ✅ Corrected for SmartThings format
+    const NO2 = parseFloat(pollutantValues?.NO2?.[0]?.stringConfig?.value) || 0;
 
-    // Validate input values
-    if ([O3, PM2_5, NO2].some(value => value === undefined || isNaN(value))) {
+    // ✅ Ensure all pollutants are valid numbers
+    if ([O3, PM2_5, NO2].some(value => isNaN(value))) {
         return {
             AQHI: null,
             category: 'Invalid Input',
@@ -34,18 +34,18 @@ module.exports = (pollutantValues) => {
         };
     }
 
-    // Calculate the AQHI using risk coefficients
+    // ✅ Compute AQHI using risk coefficients
     const riskO3 = riskCoefficients.O3 * O3;
-    const riskPM2_5 = riskCoefficients.PM2_5 * PM2_5;
+    const riskPM2_5 = riskCoefficients["PM2.5"] * PM2_5;
     const riskNO2 = riskCoefficients.NO2 * NO2;
 
     const totalRisk = riskO3 + riskPM2_5 + riskNO2;
     const AQHI = Math.round(10 * totalRisk);
 
-    // Determine AQHI category
+    // ✅ Find correct category for AQHI
     const category = categories.find(c => AQHI >= c.min && (c.max === Infinity || AQHI <= c.max));
 
-    // Identify the dominant pollutant responsible for the highest risk
+    // ✅ Identify the dominant pollutant responsible for the highest risk
     const risks = { O3: riskO3, "PM2.5": riskPM2_5, NO2: riskNO2 };
     const responsiblePollutant = Object.keys(risks).reduce((a, b) => risks[a] > risks[b] ? a : b);
 
