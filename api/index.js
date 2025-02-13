@@ -63,7 +63,7 @@ const smartApp = new SmartApp()
                     { id: 'aqhi', name: '🇨🇦 AQHI (Canada)' }
                 ])
                 .required(true)
-                .name('📊 Select AQI Calculation Standard')
+                .name('☑️ Select AQI Calculation Standard')
                 .description('Choose a standard for AQI calculation based on your location.');
         });
     })
