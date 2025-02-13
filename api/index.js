@@ -111,10 +111,22 @@ const smartApp = new SmartApp()
     
         // ✅ Section to display AQI Category with visual color box
         page.section('AQI Category', section => {
-            section.imageSetting('aqiCategoryImage')
+            const iconMapping = {
+                "Green": "https://www.iconsdb.com/icons/preview/green/circle-xxl.png",
+                "Light Green": "https://www.iconsdb.com/icons/preview/light-green/circle-xxl.png",
+                "Yellow": "https://www.iconsdb.com/icons/preview/yellow/circle-xxl.png",
+                "Orange": "https://www.iconsdb.com/icons/preview/orange/circle-xxl.png",
+                "Red": "https://www.iconsdb.com/icons/preview/red/circle-xxl.png",
+                "Maroon": "https://www.iconsdb.com/icons/preview/maroon/circle-xxl.png"
+            };
+        
+            const iconUrl = iconMapping[result.color] || "https://www.iconsdb.com/icons/preview/gray/circle-xxl.png";
+        
+            section.imageSetting('aqiCategoryIcon')
                 .name(`📊 AQI Category: ${result.category}`)
-                .imageUrl(colorImage);
+                .imageUrl(iconUrl);
         });
+        
     })
     
     
