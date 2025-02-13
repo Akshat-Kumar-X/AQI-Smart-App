@@ -6,7 +6,7 @@ const path = require('path');
 // ✅ Fix: Disable objectNotation to prevent key nesting issues
 i18n.configure({
     locales: ['en'],
-    directory: path.join(__dirname, '../locales'),
+    directory: path.join(__dirname, './locales'),
     defaultLocale: 'en',
     autoReload: true,
     updateFiles: false,
@@ -22,7 +22,7 @@ const smartApp = new SmartApp()
         page.complete(false);
 
         // ✅ Section 1: Gaseous Pollutants
-        page.section(i18n.__('a'), section => {
+        page.section(i18n.__('pages.mainPage.sections.GaseousPollutants.name'), section => {
             section.paragraphSetting('gaseousHeading')
                 .name('🚀 Enter Gas Concentrations')
                 .description('Provide the concentration levels of gaseous pollutants (ppm).');
