@@ -18,8 +18,8 @@ const smartApp = new SmartApp()
     .configureI18n()
     .page('mainPage', (context, page, configData) => {
         page.name('Air Quality Input');
-        page.nextPageId('resultPage');  // ✅ Ensures navigation to Result Page
-        page.complete(false);  // ✅ Prevents SmartThings from exiting immediately
+        page.nextPageId('resultPage');
+        page.complete(false);
 
         page.section('Air Quality Inputs', section => {
             section.numberSetting('SO2').min(0).max(1).required(true).name('SO2 (ppm)');
@@ -30,51 +30,79 @@ const smartApp = new SmartApp()
             section.numberSetting('PM2.5').min(0).max(500).required(true).name('PM2.5 (µg/m³)');
             section.enumSetting('standardType')
                 .options([
-                    { id: 'cai', name: 'South Korea (CAI)' },
-                    { id: 'epa', name: 'USA (EPA)' },
-                    { id: 'naqi', name: 'India (NAQI)' },
-                    { id: 'fea', name: 'Germany (FEA)' },
-                    { id: 'aqhi', name: 'Canada (AQHI)' }
+                    { id: 'cai', name: 'CAI (Comprehensive Air Quality Index)' },
+                    { id: 'epa', name: 'EPA (US Environmental Protection Agency)' },
+                    { id: 'naqi', name: 'NAQI (National Air Quality Index)' },
+                    { id: 'fea', name: 'FEA (Germany Federal Environmental Agency)' },
+                    { id: 'aqhi', name: 'AQHI (Canada Air Quality Health Index)' }
                 ])
                 .required(true)
                 .name('Standard Type');
         });
     })
-    .page('resultPage', async (context, page) => {
-        const installedAppId = context.installedAppId;
-        const settings = await context.api.installedApps.getConfig(installedAppId);
+    .page('resultPage', (context, page) => {
+        const settings = context.config; // ✅ Use context.config instead of getConfig()
 
-        // Extract pollutant inputs and standard type
+        // Extract pollutant values
         const pollutants = {
-            'SO2': parseFloat(settings.SO2?.[0]?.stringConfig.value || 0),
-            'CO': parseFloat(settings.CO?.[0]?.stringConfig.value || 0),
-            'O3': parseFloat(settings.O3?.[0]?.stringConfig.value || 0),
-            'NO2': parseFloat(settings.NO2?.[0]?.stringConfig.value || 0),
-            'PM10': parseFloat(settings.PM10?.[0]?.stringConfig.value || 0),
-            'PM2.5': parseFloat(settings['PM2.5']?.[0]?.stringConfig.value || 0),
+            'SO2': parseFloat(settings.SO2?.[0]?.stringConfig?.value || 0),
+            'CO': parseFloat(settings.CO?.[0]?.stringConfig?.value || 0),
+            'O3': parseFloat(settings.O3?.[0]?.stringConfig?.value || 0),
+            'NO2': parseFloat(settings.NO2?.[0]?.stringConfig?.value || 0),
+            'PM10': parseFloat(settings.PM10?.[0]?.stringConfig?.value || 0),
+            'PM2.5': parseFloat(settings['PM2.5']?.[0]?.stringConfig?.value || 0),
         };
 
-        const standardType = settings.standardType?.[0]?.value || 'cai';
+        const standardType = settings.standardType?.[0]?.stringConfig?.value || 'cai';
 
         // Get the appropriate AQI calculator
         const calculateAQI = getAQICalculator(standardType);
         const result = calculateAQI(pollutants);
 
         page.name('AQI Result');
-        page.complete(true);  // ✅ Marks this as the final page
+        page.complete(true);
 
         page.section('Calculated AQI', section => {
             section.paragraphSetting('aqiValue')
                 .name('AQI Calculation Result')
                 .description(`AQI: ${result.AQI}\nCategory: ${result.category}\nColor: ${result.color}\nResponsible Pollutant: ${result.responsiblePollutant}`);
         });
+    })
+    .updated(async (context, updateData) => {
+        const settings = context.config;
+
+        // Extract pollutant inputs
+        const pollutants = {
+            'SO2': parseFloat(settings.SO2?.[0]?.stringConfig?.value || 0),
+            'CO': parseFloat(settings.CO?.[0]?.stringConfig?.value || 0),
+            'O3': parseFloat(settings.O3?.[0]?.stringConfig?.value || 0),
+            'NO2': parseFloat(settings.NO2?.[0]?.stringConfig?.value || 0),
+            'PM10': parseFloat(settings.PM10?.[0]?.stringConfig?.value || 0),
+            'PM2.5': parseFloat(settings['PM2.5']?.[0]?.stringConfig?.value || 0),
+        };
+
+        const standardType = settings.standardType?.[0]?.stringConfig?.value || 'cai';
+
+        // Get the AQI calculator
+        const calculateAQI = getAQICalculator(standardType);
+        const result = calculateAQI(pollutants);
+
+        // Log AQI result
+        console.log(`AQI Result: ${JSON.stringify(result)}`);
+
+        // Send notification
+        await context.api.notifications.send({
+            message: `AQI: ${result.AQI}\nCategory: ${result.category}\nResponsible Pollutant: ${result.responsiblePollutant}`,
+            type: 'ALERT'
+        });
+
+        console.log('Notification sent to user.');
     });
 
 module.exports = async (req, res) => {
     try {
         const { lifecycle, confirmationData } = req.body;
 
-        // Handle CONFIRMATION Lifecycle
         if (lifecycle === 'CONFIRMATION') {
             console.log('CONFIRMATION request received:', confirmationData.confirmationUrl);
             await fetch(confirmationData.confirmationUrl);
@@ -82,7 +110,6 @@ module.exports = async (req, res) => {
             return;
         }
 
-        // Delegate all other lifecycles to SmartApp
         smartApp.handleHttpCallback(req, res);
     } catch (err) {
         console.error('Error handling request:', err);
