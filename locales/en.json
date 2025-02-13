@@ -1,26 +1,8 @@
 {
-  "pages": {
-    "mainPage": {
-      "name": "Air Quality Input",
-      "sections": {
-        "Gaseous Pollutants": {
-          "name": "Gaseous Pollutants"
-        },
-        "Particulate Matter (PM)": {
-          "name": "Particulate Matter (PM)"
-        },
-        "AQI Standard Selection": {
-          "name": "AQI Standard Selection"
-        }
-      }
-    },
-    "resultPage": {
-      "name": "AQI Result",
-      "sections": {
-        "Calculated AQI": {
-          "name": "AQI Calculation Result"
-        }
-      }
-    }
-  }
+  "pages.mainPage.name": "Air Quality Input",
+  "pages.mainPage.sections.GaseousPollutants.name": "Gaseous Pollutants",
+  "pages.mainPage.sections.ParticulateMatter.name": "Particulate Matter (PM)",
+  "pages.mainPage.sections.AQIStandardSelection.name": "AQI Standard Selection",
+  "pages.resultPage.name": "AQI Result",
+  "pages.resultPage.sections.CalculatedAQI.name": "AQI Calculation Result"
 }

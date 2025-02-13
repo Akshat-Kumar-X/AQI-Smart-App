@@ -3,26 +3,26 @@ const getAQICalculator = require('../library');
 const i18n = require('i18n');
 const path = require('path');
 
-// Configure i18n
+// ✅ Fix: Disable objectNotation to prevent key nesting issues
 i18n.configure({
     locales: ['en'],
     directory: path.join(__dirname, '../locales'),
     defaultLocale: 'en',
     autoReload: true,
     updateFiles: false,
-    objectNotation: true
+    objectNotation: false
 });
 
 const smartApp = new SmartApp()
     .enableEventLogging()
     .configureI18n()
     .page('mainPage', (context, page, configData) => {
-        page.name(i18n.__('pages.mainPage.name'));  // ✅ Use i18n for page name
+        page.name(i18n.__('pages.mainPage.name'));
         page.nextPageId('resultPage');
         page.complete(false);
 
         // ✅ Section 1: Gaseous Pollutants
-        page.section(i18n.__('pages.mainPage.sections.Gaseous Pollutants.name'), section => {
+        page.section(i18n.__('pages.mainPage.sections.GaseousPollutants.name'), section => {
             section.paragraphSetting('gaseousHeading')
                 .name('🚀 Enter Gas Concentrations')
                 .description('Provide the concentration levels of gaseous pollutants (ppm).');
@@ -49,7 +49,7 @@ const smartApp = new SmartApp()
         });
 
         // ✅ Section 2: Particulate Matter
-        page.section(i18n.__('pages.mainPage.sections.Particulate Matter (PM).name'), section => {
+        page.section(i18n.__('pages.mainPage.sections.ParticulateMatter.name'), section => {
             section.paragraphSetting('pmHeading')
                 .name('🌫️ Enter PM Levels')
                 .description('Provide the levels of particulate matter (µg/m³).');
@@ -66,7 +66,7 @@ const smartApp = new SmartApp()
         });
 
         // ✅ Section 3: AQI Standard Selection
-        page.section(i18n.__('pages.mainPage.sections.AQI Standard Selection.name'), section => {
+        page.section(i18n.__('pages.mainPage.sections.AQIStandardSelection.name'), section => {
             section.enumSetting('standardType')
                 .options([
                     { id: 'cai', name: '🇰🇷 CAI (South Korea)' },
@@ -104,7 +104,7 @@ const smartApp = new SmartApp()
         page.name(i18n.__('pages.resultPage.name'));
         page.complete(true);
 
-        page.section(i18n.__('pages.resultPage.sections.Calculated AQI.name'), section => {
+        page.section(i18n.__('pages.resultPage.sections.CalculatedAQI.name'), section => {
             section.paragraphSetting('aqiValue')
                 .name('📈 AQI Calculation Result')
                 .description(`AQI: ${result.AQI}\nCategory: ${result.category}\nColor: ${result.color}\nResponsible Pollutant: ${result.responsiblePollutant}`);
