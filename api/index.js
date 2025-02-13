@@ -3,26 +3,18 @@ const getAQICalculator = require('../library');
 const i18n = require('i18n');
 const path = require('path');
 
-// ✅ Fix: Disable objectNotation to prevent key nesting issues
-i18n.configure({
-    locales: ['en'],
-    directory: path.join(__dirname, './locales'),
-    defaultLocale: 'en',
-    autoReload: true,
-    updateFiles: false,
-    objectNotation: false
-});
+
 
 const smartApp = new SmartApp()
     .enableEventLogging()
     .configureI18n()
     .page('mainPage', (context, page, configData) => {
-        page.name(i18n.__('pages.mainPage.name'));
+        page.name('Air Quality Input');
         page.nextPageId('resultPage');
         page.complete(false);
 
         // ✅ Section 1: Gaseous Pollutants
-        page.section(i18n.__('pages.mainPage.sections.GaseousPollutants.name'), section => {
+        page.section('Gaseous Pollutants', section => {
             section.paragraphSetting('gaseousHeading')
                 .name('🚀 Enter Gas Concentrations')
                 .description('Provide the concentration levels of gaseous pollutants (ppm).');
@@ -49,7 +41,7 @@ const smartApp = new SmartApp()
         });
 
         // ✅ Section 2: Particulate Matter
-        page.section(i18n.__('pages.mainPage.sections.ParticulateMatter.name'), section => {
+        page.section('Particulate Matter (PM)', section => {
             section.paragraphSetting('pmHeading')
                 .name('🌫️ Enter PM Levels')
                 .description('Provide the levels of particulate matter (µg/m³).');
@@ -66,7 +58,7 @@ const smartApp = new SmartApp()
         });
 
         // ✅ Section 3: AQI Standard Selection
-        page.section(i18n.__('pages.mainPage.sections.AQIStandardSelection.name'), section => {
+        page.section('AQI Standard Selection', section => {
             section.enumSetting('standardType')
                 .options([
                     { id: 'cai', name: '🇰🇷 CAI (South Korea)' },
@@ -101,14 +93,46 @@ const smartApp = new SmartApp()
         const calculateAQI = getAQICalculator(standardType);
         const result = calculateAQI(pollutants);
 
-        page.name(i18n.__('pages.resultPage.name'));
+        page.name('AQI Result');
         page.complete(true);
 
-        page.section(i18n.__('pages.resultPage.sections.CalculatedAQI.name'), section => {
+        page.section('Calculated AQI', section => {
             section.paragraphSetting('aqiValue')
                 .name('📈 AQI Calculation Result')
                 .description(`AQI: ${result.AQI}\nCategory: ${result.category}\nColor: ${result.color}\nResponsible Pollutant: ${result.responsiblePollutant}`);
         });
+    })
+    
+    // ✅ Lifecycle: Handle Updates
+    .updated(async (context, updateData) => {
+        const settings = context.config;
+
+        // Extract pollutant inputs
+        const pollutants = {
+            'SO2': parseFloat(settings.SO2?.[0]?.stringConfig?.value || 0),
+            'CO': parseFloat(settings.CO?.[0]?.stringConfig?.value || 0),
+            'O3': parseFloat(settings.O3?.[0]?.stringConfig?.value || 0),
+            'NO2': parseFloat(settings.NO2?.[0]?.stringConfig?.value || 0),
+            'PM10': parseFloat(settings.PM10?.[0]?.stringConfig?.value || 0),
+            'PM2.5': parseFloat(settings['PM2.5']?.[0]?.stringConfig?.value || 0),
+        };
+
+        const standardType = settings.standardType?.[0]?.stringConfig?.value || 'cai';
+
+        // Get the AQI calculator
+        const calculateAQI = getAQICalculator(standardType);
+        const result = calculateAQI(pollutants);
+
+        // Log AQI result
+        console.log(`AQI Result: ${JSON.stringify(result)}`);
+
+        // Send notification
+        await context.api.notifications.send({
+            message: `AQI: ${result.AQI}\nCategory: ${result.category}\nResponsible Pollutant: ${result.responsiblePollutant}`,
+            type: 'ALERT'
+        });
+
+        console.log('Notification sent to user.');
     });
 
 module.exports = async (req, res) => {
