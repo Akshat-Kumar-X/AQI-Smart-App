@@ -100,11 +100,11 @@ const smartApp = new SmartApp()
         // ✅ Color Representation using Unicode blocks
         const colorMapping = {
             "Green": "🟩🟩🟩🟩🟩",
-            "Light Green": "🟨🟨🟨🟨🟨",
+            "Light Green": "🟩🟩🟩🟩🟩",
             "Yellow": "🟨🟨🟨🟨🟨",
             "Orange": "🟧🟧🟧🟧🟧",
             "Red": "🟥🟥🟥🟥🟥",
-            "Maroon": "🟫🟫🟫🟫🟫"
+            "Maroon": "🟥🟥🟥🟥🟥"
         };
     
         const colorBlock = colorMapping[result.color] || "⬜⬜⬜⬜⬜"; // Default white if unknown
