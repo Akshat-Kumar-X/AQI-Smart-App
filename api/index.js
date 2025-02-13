@@ -17,30 +17,80 @@ const smartApp = new SmartApp()
     .enableEventLogging()
     .configureI18n()
     .page('mainPage', (context, page, configData) => {
+        page.name('Air Quality Input');
         page.nextPageId('resultPage');
         page.complete(false);
 
-        page.section('Air Quality Inputs', section => {
-            section.numberSetting('SO2').min(0).max(1).required(true).name('SO2 (ppm)');
-            section.numberSetting('CO').min(0).max(50).required(true).name('CO (ppm)');
-            section.numberSetting('O3').min(0).max(0.6).required(true).name('Ozone (O3, ppm)');
-            section.numberSetting('NO2').min(0).max(2).required(true).name('NO2 (ppm)');
-            section.numberSetting('PM10').min(0).max(600).required(true).name('PM10 (µg/m³)');
-            section.numberSetting('PM2.5').min(0).max(500).required(true).name('PM2.5 (µg/m³)');
+        // ✅ Section 1: Gaseous Pollutants
+        page.section('Gaseous Pollutants', section => {
+            section.paragraphSetting('gaseousHeading')
+                .name('🚀 Enter Gas Concentrations')
+                .description('Provide the concentration levels of gaseous pollutants (ppm).');
+
+            section.numberSetting('SO2')
+                .min(0).max(1)
+                .required(true)
+                .name('🟠 Sulfur Dioxide (SO2, ppm)');
+
+            section.numberSetting('CO')
+                .min(0).max(50)
+                .required(true)
+                .name('🟢 Carbon Monoxide (CO, ppm)');
+
+            section.numberSetting('O3')
+                .min(0).max(0.6)
+                .required(true)
+                .name('🔵 Ozone (O3, ppm)');
+
+            section.numberSetting('NO2')
+                .min(0).max(2)
+                .required(true)
+                .name('🟣 Nitrogen Dioxide (NO2, ppm)');
+        });
+
+        // ✅ Section 2: Particulate Matter
+        page.section('Particulate Matter (PM)', section => {
+            section.paragraphSetting('pmHeading')
+                .name('🌫️ Enter PM Levels')
+                .description('Provide the levels of particulate matter (µg/m³).');
+
+            section.numberSetting('PM10')
+                .min(0).max(600)
+                .required(true)
+                .name('⚫ PM10 (µg/m³)');
+
+            section.numberSetting('PM2.5')
+                .min(0).max(500)
+                .required(true)
+                .name('⚫ PM2.5 (µg/m³)');
+        });
+
+        // ✅ Separator for Visual Structure
+        page.section('separator', section => {
+            section.paragraphSetting('separator')
+                .name('----------------------------------------')
+                .description('🔽 Choose AQI Calculation Standard 🔽');
+        });
+
+        // ✅ Section 3: AQI Standard Selection
+        page.section('AQI Standard Selection', section => {
             section.enumSetting('standardType')
                 .options([
-                    { id: 'cai', name: 'CAI (Comprehensive Air Quality Index)' },
-                    { id: 'epa', name: 'EPA (US Environmental Protection Agency)' },
-                    { id: 'naqi', name: 'NAQI (National Air Quality Index)' },
-                    { id: 'fea', name: 'FEA (Germany Federal Environmental Agency)' },
-                    { id: 'aqhi', name: 'AQHI (Canada Air Quality Health Index)' }
+                    { id: 'cai', name: '🇰🇷 CAI (South Korea)' },
+                    { id: 'epa', name: '🇺🇸 EPA (USA)' },
+                    { id: 'naqi', name: '🇮🇳 NAQI (India)' },
+                    { id: 'fea', name: '🇩🇪 FEA (Germany)' },
+                    { id: 'aqhi', name: '🇨🇦 AQHI (Canada)' }
                 ])
                 .required(true)
-                .name('Standard Type');
+                .name('📊 Select AQI Calculation Standard')
+                .description('Choose a standard for AQI calculation based on your location.');
         });
     })
+
+    // ✅ Result Page
     .page('resultPage', (context, page) => {
-        const settings = context.config; // ✅ Use context.config instead of getConfig()
+        const settings = context.config;
 
         // Extract pollutant values
         const pollutants = {
@@ -63,10 +113,12 @@ const smartApp = new SmartApp()
 
         page.section('Calculated AQI', section => {
             section.paragraphSetting('aqiValue')
-                .name('AQI Calculation Result')
+                .name('📈 AQI Calculation Result')
                 .description(`AQI: ${result.AQI}\nCategory: ${result.category}\nColor: ${result.color}\nResponsible Pollutant: ${result.responsiblePollutant}`);
         });
     })
+    
+    // ✅ Lifecycle: Handle Updates
     .updated(async (context, updateData) => {
         const settings = context.config;
 
