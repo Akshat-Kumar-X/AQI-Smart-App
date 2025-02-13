@@ -18,8 +18,8 @@ const smartApp = new SmartApp()
     .configureI18n()
     .page('mainPage', (context, page, configData) => {
         page.name('Air Quality Input');
-        page.complete(true);
-        page.nextPageId('resultPage'); // ✅ Ensures navigation to the result page
+        page.nextPageId('resultPage');  // ✅ Ensures navigation to Result Page
+        page.complete(false);  // ✅ Prevents SmartThings from exiting immediately
 
         page.section('Air Quality Inputs', section => {
             section.numberSetting('SO2').min(0).max(1).required(true).name('SO2 (ppm)');
@@ -40,7 +40,7 @@ const smartApp = new SmartApp()
                 .name('Standard Type');
         });
     })
-    .page('resultPage', (context, page) => {
+    .page('resultPage', async (context, page) => {
         const settings = context.config;
 
         // Extract pollutant inputs and standard type
@@ -59,14 +59,13 @@ const smartApp = new SmartApp()
         const calculateAQI = getAQICalculator(standardType);
         const result = calculateAQI(pollutants);
 
-        // Add a section to display the AQI result
         page.name('AQI Result');
-        page.complete(true); // ✅ Ensures that the result page is shown
+        page.complete(true);  // ✅ Marks this as the final page
 
         page.section('Calculated AQI', section => {
             section.paragraphSetting('aqiValue')
-                .name(`AQI: ${result.AQI}`)
-                .description(`Category: ${result.category}\nColor: ${result.color}\nResponsible Pollutant: ${result.responsiblePollutant}`);
+                .name('AQI Calculation Result')
+                .description(`AQI: ${result.AQI}\nCategory: ${result.category}\nColor: ${result.color}\nResponsible Pollutant: ${result.responsiblePollutant}`);
         });
     })
     .updated(async (context, updateData) => {
