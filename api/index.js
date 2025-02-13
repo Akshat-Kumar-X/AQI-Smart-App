@@ -97,38 +97,25 @@ const smartApp = new SmartApp()
                 .description(`AQI: ${result.AQI}\nCategory: ${result.category}\nResponsible Pollutant: ${result.responsiblePollutant}`);
         });
     
-        // ✅ Color Representation using Hosted Images
+        // ✅ Color Representation using Unicode blocks
         const colorMapping = {
-            "Green": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHyeu5WaLvdEjDibcWN4Zg4GYD0gxBpPevlA&s",
-            "Light Green": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHyeu5WaLvdEjDibcWN4Zg4GYD0gxBpPevlA&s",
-            "Yellow": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHyeu5WaLvdEjDibcWN4Zg4GYD0gxBpPevlA&s",
-            "Orange": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHyeu5WaLvdEjDibcWN4Zg4GYD0gxBpPevlA&s",
-            "Red": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHyeu5WaLvdEjDibcWN4Zg4GYD0gxBpPevlA&s",
-            "Maroon": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHyeu5WaLvdEjDibcWN4Zg4GYD0gxBpPevlA&s"
+            "Green": "🟩🟩🟩🟩🟩",
+            "Light Green": "🟨🟨🟨🟨🟨",
+            "Yellow": "🟨🟨🟨🟨🟨",
+            "Orange": "🟧🟧🟧🟧🟧",
+            "Red": "🟥🟥🟥🟥🟥",
+            "Maroon": "🟫🟫🟫🟫🟫"
         };
     
-        const colorImage = colorMapping[result.color] || "https://your-hosted-image.com/default.png"; // Fallback image
+        const colorBlock = colorMapping[result.color] || "⬜⬜⬜⬜⬜"; // Default white if unknown
     
-        // ✅ Section to display AQI Category with visual color box
+        // ✅ Section to display AQI Category with visual color blocks
         page.section('AQI Category', section => {
-            const iconMapping = {
-                "Green": "https://www.iconsdb.com/icons/preview/green/circle-xxl.png",
-                "Light Green": "https://www.iconsdb.com/icons/preview/light-green/circle-xxl.png",
-                "Yellow": "https://www.iconsdb.com/icons/preview/yellow/circle-xxl.png",
-                "Orange": "https://www.iconsdb.com/icons/preview/orange/circle-xxl.png",
-                "Red": "https://www.iconsdb.com/icons/preview/red/circle-xxl.png",
-                "Maroon": "https://www.iconsdb.com/icons/preview/maroon/circle-xxl.png"
-            };
-        
-            const iconUrl = iconMapping[result.color] || "https://www.iconsdb.com/icons/preview/gray/circle-xxl.png";
-        
-            section.imageSetting('aqiCategoryIcon')
-                .name(`📊 AQI Category: ${result.category}`)
-                .imageUrl(iconUrl);
+            section.paragraphSetting('aqiCategoryBox')
+                .name(`AQI Category: ${result.category}`)
+                .description(`${colorBlock}\nPollutant: ${result.responsiblePollutant}`);
         });
-        
     })
-    
     
 
     
