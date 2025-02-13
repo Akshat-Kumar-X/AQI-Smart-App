@@ -1,4 +1,5 @@
-// CAI (South Korea) AQI Calculator
+
+// CAI calculator for South Korea
 
 module.exports = (pollutantValues) => {
     const categories = [
@@ -21,9 +22,9 @@ module.exports = (pollutantValues) => {
     let responsiblePollutant = '';
 
     pollutants.forEach(pollutant => {
-        const value = parseFloat(pollutantValues?.[pollutant.name]?.[0]?.stringConfig?.value) || 0;  // ✅ Fixed for SmartThings API format
+        const value = parseFloat(pollutantValues[pollutant.name]);
 
-        if (!isNaN(value)) {
+        if (value !== undefined && !isNaN(value)) {
             for (let i = 0; i < pollutant.BP_LO.length; i++) {
                 if (value >= pollutant.BP_LO[i] && value <= pollutant.BP_HI[i]) {
                     const I_P = ((pollutant.I_HI[i] - pollutant.I_LO[i]) / (pollutant.BP_HI[i] - pollutant.BP_LO[i])) * (value - pollutant.BP_LO[i]) + pollutant.I_LO[i];
@@ -38,7 +39,7 @@ module.exports = (pollutantValues) => {
         }
     });
 
-    const category = categories.find(c => highestAQI >= c.min && (c.max === 500 || highestAQI <= c.max));
+    const category = categories.find(c => highestAQI >= c.min && highestAQI <= c.max);
 
     return {
         AQI: Math.round(highestAQI),
