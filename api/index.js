@@ -87,17 +87,21 @@ const smartApp = new SmartApp()
         const calculateAQI = getAQICalculator(standardType);
         const result = calculateAQI(pollutants);
     
-        // AQI Color Mapping
-        const colorMapping = {
-            "Green": "🟩",
-            "Light Green": "🟩",
-            "Yellow": "🟨",
-            "Orange": "🟧",
-            "Red": "🟥",
-            "Maroon": "🟥"
-        };
+        // Get AQI Scale from the selected standard
+        const aqiScale = calculateAQI().categories.map(c => {
+            const colorEmoji = {
+                "Green": "🟩",
+                "Light Green": "🟩",
+                "Yellow": "🟨",
+                "Orange": "🟧",
+                "Red": "🟥",
+                "Maroon": "🟥",
+                "Blue": "🟦",
+                "Purple": "🟪"
+            }[c.color] || "⬜"; // Default white if unknown
     
-        const colorEmoji = colorMapping[result.color] || "⬜"; // Default white if unknown
+            return `${colorEmoji} ${c.name} (${c.min}-${c.max})`;
+        }).join("\n");
     
         page.name('AQI Result');
         page.complete(true);
@@ -107,30 +111,21 @@ const smartApp = new SmartApp()
             section.paragraphSetting('aqiValue')
                 .name('📈 AQI Calculation Result')
                 .description(
-                    `AQI Result: ${result.AQI}\n` +
-                    `AQI Category: ${colorEmoji} ${result.category} \n` +
-                    `Pollutant: ${result.responsiblePollutant}\n\n` +
-                    `Color: ${result.color}`
+                    `AQI Result: **${result.AQI}**\n` +
+                    `AQI Category: **${result.category}** ${result.color}\n` +
+                    `Pollutant: **${result.responsiblePollutant}**\n\n` +
+                    `🌍 **Current Standard:** ${standardType.toUpperCase()}`
                 );
         });
+    
+        // ✅ AQI Scale Section (Dynamic Based on Standard)
         page.section('AQI Scale', section => {
-            section.paragraphSetting('aqiValue')
-                .name('AQI Standard Scale')
-                .description(
-                    `🌍 Current Standard: ${standardType.toUpperCase()}\n\n` +
-                    `Scale:\n` +
-                    `🟩 Good (Green)\n` +
-                    `🟩 Satisfactory (Light Green)\n` +
-                    `🟨 Moderate (Yellow)\n` +
-                    `🟧 Poor (Orange)\n` +
-                    `🟥 Very Poor (Red)\n` +
-                    `🟥 Severe (Maroon)`
-                );
+            section.paragraphSetting('aqiScale')
+                .name('📊 AQI Standard Scale')
+                .description(aqiScale);
         });
     })
     
-    
-
     
     // ✅ Lifecycle: Handle Updates
     .updated(async (context, updateData) => {
