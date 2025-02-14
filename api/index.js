@@ -71,21 +71,30 @@ const smartApp = new SmartApp()
     .page('resultPage', (context, page) => {
         const settings = context.config;
     
-        // Extract pollutant values
+        // Debugging: Log settings to verify the values
+        console.log("DEBUG: Settings Config:", JSON.stringify(settings, null, 2));
+    
+        // Extract pollutant values safely
         const pollutants = {
-            'SO2': parseFloat(settings.SO2?.[0]?.stringConfig?.value || 0),
-            'CO': parseFloat(settings.CO?.[0]?.stringConfig?.value || 0),
-            'O3': parseFloat(settings.O3?.[0]?.stringConfig?.value || 0),
-            'NO2': parseFloat(settings.NO2?.[0]?.stringConfig?.value || 0),
-            'PM10': parseFloat(settings.PM10?.[0]?.stringConfig?.value || 0),
-            'PM2.5': parseFloat(settings['PM2.5']?.[0]?.stringConfig?.value || 0),
+            'SO2': parseFloat(settings?.SO2?.[0]?.stringConfig?.value ?? "0"),
+            'CO': parseFloat(settings?.CO?.[0]?.stringConfig?.value ?? "0"),
+            'O3': parseFloat(settings?.O3?.[0]?.stringConfig?.value ?? "0"),
+            'NO2': parseFloat(settings?.NO2?.[0]?.stringConfig?.value ?? "0"),
+            'PM10': parseFloat(settings?.PM10?.[0]?.stringConfig?.value ?? "0"),
+            'PM2.5': parseFloat(settings?.["PM2.5"]?.[0]?.stringConfig?.value ?? "0"),
         };
     
-        const standardType = settings.standardType?.[0]?.stringConfig?.value || 'cai';
+        const standardType = settings?.standardType?.[0]?.stringConfig?.value || 'cai';
+    
+        // Debugging: Log extracted pollutants
+        console.log("DEBUG: Extracted Pollutants:", JSON.stringify(pollutants, null, 2));
     
         // Get the appropriate AQI calculator
         const calculateAQI = getAQICalculator(standardType);
         const result = calculateAQI(pollutants);
+    
+        // Debugging: Log AQI result
+        console.log("DEBUG: AQI Result:", JSON.stringify(result, null, 2));
     
         // AQI Color Mapping
         const colorMapping = {
@@ -110,13 +119,14 @@ const smartApp = new SmartApp()
                 .name('📈 AQI Calculation Result')
                 .description(
                     `AQI Result: ${result.AQI}\n` +
-                    `AQI Category: ${colorEmoji} ${result.category} \n` +
+                    `AQI Category: ${colorEmoji} ${result.category}\n` +
                     `Pollutant: ${result.responsiblePollutant}\n` +
-                    `Color: ${result.color}`
+                    `Color: ${result.color}\n` + // Fixed missing `+` sign
                     `Current Standard: ${standardType.toUpperCase()}`
                 );
         });
-    })
+    });
+    
     
     // ✅ Lifecycle: Handle Updates
     .updated(async (context, updateData) => {
