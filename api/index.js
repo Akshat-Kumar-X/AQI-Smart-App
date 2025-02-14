@@ -89,12 +89,14 @@ const smartApp = new SmartApp()
     
         // AQI Color Mapping
         const colorMapping = {
+            "Blue": "🟦",
             "Green": "🟩",
             "Light Green": "🟩",
             "Yellow": "🟨",
             "Orange": "🟧",
             "Red": "🟥",
-            "Maroon": "🟥"
+            "Maroon": "🟥",
+            "Purple": "🟪"
         };
     
         const colorEmoji = colorMapping[result.color] || "⬜"; // Default white if unknown
