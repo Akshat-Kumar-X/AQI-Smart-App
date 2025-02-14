@@ -87,6 +87,18 @@ const smartApp = new SmartApp()
         const calculateAQI = getAQICalculator(standardType);
         const result = calculateAQI(pollutants);
     
+        // AQI Color Mapping
+        const colorMapping = {
+            "Green": "🟩",
+            "Light Green": "🟩",
+            "Yellow": "🟨",
+            "Orange": "🟧",
+            "Red": "🟥",
+            "Maroon": "🟥"
+        };
+    
+        const colorEmoji = colorMapping[result.color] || "⬜"; // Default white if unknown
+    
         page.name('AQI Result');
         page.complete(true);
     
@@ -94,28 +106,22 @@ const smartApp = new SmartApp()
         page.section('Calculated AQI', section => {
             section.paragraphSetting('aqiValue')
                 .name('📈 AQI Calculation Result')
-                .description(`AQI: ${result.AQI}\nCategory: ${result.category}\nResponsible Pollutant: ${result.responsiblePollutant}`);
-        });
-    
-        // ✅ Color Representation using Unicode blocks
-        const colorMapping = {
-            "Green": "🟩🟩🟩🟩🟩",
-            "Light Green": "🟩🟩🟩🟩🟩",
-            "Yellow": "🟨🟨🟨🟨🟨",
-            "Orange": "🟧🟧🟧🟧🟧",
-            "Red": "🟥🟥🟥🟥🟥",
-            "Maroon": "🟥🟥🟥🟥🟥"
-        };
-    
-        const colorBlock = colorMapping[result.color] || "⬜⬜⬜⬜⬜"; // Default white if unknown
-    
-        // ✅ Section to display AQI Category with visual color blocks
-        page.section('AQI Category', section => {
-            section.paragraphSetting('aqiCategoryBox')
-                .name(`AQI Category: ${result.category}`)
-                .description(`${colorBlock}\nPollutant: ${result.responsiblePollutant}`);
+                .description(
+                    `AQI Result: **${result.AQI}**\n` +
+                    `AQI Category: **${result.category}** ${colorEmoji}\n` +
+                    `Pollutant: **${result.responsiblePollutant}**\n\n` +
+                    `🌍 **Current Standard:** ${standardType.toUpperCase()}\n\n` +
+                    `📊 **Scale:**\n` +
+                    `Good (Green)                🟩\n` +
+                    `Satisfactory (Light Green)  🟩\n` +
+                    `Moderate (Yellow)           🟨\n` +
+                    `Poor (Orange)               🟧\n` +
+                    `Very Poor (Red)             🟥\n` +
+                    `Severe (Maroon)             🟥`
+                );
         });
     })
+    
     
 
     
