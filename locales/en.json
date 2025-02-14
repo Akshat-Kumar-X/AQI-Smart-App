@@ -1,9 +1,8 @@
 {
-    "files": [
-      "api",
-      "library",
-      "locales",
-      "vercel.json"
-    ]
-  }
-  
+  "pages.mainPage.name": "Air Quality Input",
+  "pages.mainPage.sections.GaseousPollutants.name": "Gaseous Pollutants",
+  "pages.mainPage.sections.ParticulateMatter.name": "Particulate Matter (PM)",
+  "pages.mainPage.sections.AQIStandardSelection.name": "AQI Standard Selection",
+  "pages.resultPage.name": "AQI Result",
+  "pages.resultPage.sections.CalculatedAQI.name": "AQI Calculation Result"
+}
