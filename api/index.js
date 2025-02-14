@@ -107,12 +107,12 @@ const smartApp = new SmartApp()
         // ✅ AQI Result Section
         page.section('Calculated AQI', section => {
             section.paragraphSetting('aqiValue')
-                .name('📈 AQI Calculation Result')
+                .name('AQI Calculation Result ✅')
                 .description(
                     `AQI Result: ${result.AQI}\n` +
                     `AQI Category: ${colorEmoji} ${result.category} \n` +
                     `Pollutant: ${result.responsiblePollutant}\n` +
-                    `Color: ${result.color}` +
+                    `Color: ${result.color}\n` +
                     `Current Standard: ${standardType.toUpperCase()}`
                 );
         });
