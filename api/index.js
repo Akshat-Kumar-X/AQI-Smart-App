@@ -112,12 +112,12 @@ const smartApp = new SmartApp()
                     `Pollutant: **${result.responsiblePollutant}**\n\n` +
                     `🌍 **Current Standard:** ${standardType.toUpperCase()}\n\n` +
                     `📊 **Scale:**\n` +
-                    `Good (Green)                🟩\n` +
-                    `Satisfactory (Light Green)  🟩\n` +
-                    `Moderate (Yellow)           🟨\n` +
-                    `Poor (Orange)               🟧\n` +
-                    `Very Poor (Red)             🟥\n` +
-                    `Severe (Maroon)             🟥`
+                    `Good (Green)‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ 🟩\n` +
+                    `Satisfactory (Light Green)‎ ‎ 🟩\n` +
+                    `Moderate (Yellow)‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ 🟨\n` +
+                    `Poor (Orange)‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ 🟧\n` +
+                    `Very Poor (Red)‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ 🟥\n` +
+                    `Severe (Maroon)‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ 🟥`
                 );
         });
     })
