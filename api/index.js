@@ -89,12 +89,14 @@ const smartApp = new SmartApp()
     
         // AQI Color Mapping
         const colorMapping = {
+            "Blue": "🟦",
             "Green": "🟩",
             "Light Green": "🟩",
             "Yellow": "🟨",
             "Orange": "🟧",
             "Red": "🟥",
-            "Maroon": "🟥"
+            "Maroon": "🟥",
+            "Purple": "🟪"
         };
     
         const colorEmoji = colorMapping[result.color] || "⬜"; // Default white if unknown
@@ -110,21 +112,8 @@ const smartApp = new SmartApp()
                     `AQI Result: ${result.AQI}\n` +
                     `AQI Category: ${colorEmoji} ${result.category} \n` +
                     `Pollutant: ${result.responsiblePollutant}\n` +
-                    `Color: ${result.color}`
-                );
-        });
-        page.section('AQI Scale', section => {
-            section.paragraphSetting('aqiValue')
-                .name('AQI Standard Scale')
-                .description(
-                    `🌍 Current Standard: ${standardType.toUpperCase()}\n\n` +
-                    `Scale:\n` +
-                    `🟩 Good (Green)\n` +
-                    `🟩 Satisfactory (Light Green)\n` +
-                    `🟨 Moderate (Yellow)\n` +
-                    `🟧 Poor (Orange)\n` +
-                    `🟥 Very Poor (Red)\n` +
-                    `🟥 Severe (Maroon)`
+                    `Color: ${result.color}` +
+                    `Current Standard: ${standardType.toUpperCase()}`
                 );
         });
     })
