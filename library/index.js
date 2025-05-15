@@ -8,6 +8,7 @@ const DAQI_Calculator =  require('./AQI-Calculators/daqi')
 const EEA_Calculator = require('./AQI-Calculators/eea')
 const IMECA_Calculator = require('./AQI-Calculators/imeca')
 const CAQI_Calculator = require('./AQI-Calculators/caqi')
+const ATMO_Calculator = require('./AQI-Calculators/atmo')
 const HJ6332012_Calculator = require('./AQI-Calculators/HJ6332012')
 // Add more calculators as you expand to more standards
 
@@ -21,6 +22,7 @@ const calculators = {
     eea: EEA_Calculator,
     imeca: IMECA_Calculator,
     caqi: CAQI_Calculator,
+    atmo: ATMO_Calculator,
     HJ6332012: HJ6332012_Calculator,
 };
 

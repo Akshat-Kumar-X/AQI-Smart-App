@@ -55,12 +55,19 @@ const smartApp = new SmartApp()
         // ✅ Section 3: AQI Standard Selection
         page.section('AQI Standard Selection', section => {
             section.enumSetting('standardType')
-                .options([
+                        .options([
                     { id: 'cai', name: '🇰🇷 CAI (South Korea)' },
                     { id: 'epa', name: '🇺🇸 EPA (USA)' },
                     { id: 'naqi', name: '🇮🇳 NAQI (India)' },
                     { id: 'fea', name: '🇩🇪 FEA (Germany)' },
-                    { id: 'aqhi', name: '🇨🇦 AQHI (Canada)' }
+                    { id: 'aqhi', name: '🇨🇦 AQHI (Canada)' },
+                    { id: 'caqi', name: '🇨🇳 CAQI (China)' },
+                    { id: 'daqis', name: '🇩🇰 DAQI (Denmark)' },
+                    { id: 'eea', name: '🇪🇺 EEA (European Union)' },
+                    { id: 'HJ6332012', name: '🇨🇳 HJ633-2012 (China)' },
+                    { id: 'imeca', name: '🇲🇽 IMECA (Mexico)' },
+                    { id: 'uba', name: '🇩🇪 UBA (Germany)' },
+                    { id: 'atmo', name: '🇫🇷 France (France)' }
                 ])
                 .required(true)
                 .name('☑️ Select AQI Calculation Standard')
